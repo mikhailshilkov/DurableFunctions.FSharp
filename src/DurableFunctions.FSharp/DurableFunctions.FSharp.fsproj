@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="OrchestratorCE.fs" />
+    <Compile Include="Activity.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.0" />
+  </ItemGroup>
+</Project>

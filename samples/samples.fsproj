@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AzureFunctionsVersion>v2</AzureFunctionsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Hello.fs" />
+    <Compile Include="Typed.fs" />
+    <Compile Include="FanOutFanIn.fs" />
+    <Compile Include="HttpStart.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.0" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
+    <PackageReference Include="TaskBuilder.fs" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\DurableFunctions.FSharp\DurableFunctions.FSharp.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
