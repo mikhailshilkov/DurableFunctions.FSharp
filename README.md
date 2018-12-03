@@ -4,9 +4,9 @@ DurableFunctions.FSharp Library
 F#-friendly API layer around 
 [Azure Functions Durable Extensions](https://github.com/Azure/azure-functions-durable-extension).
 
-*Note: this is an early draft with the main goal to gather feedback,
+*Note: this is an early draft with the primary goal to gather feedback,
 opinions, real-world scenarios and refine the API. Breaking changes
-can be introduced at any time.*
+may be introduced at any time.*
 
 Usage
 -----
@@ -23,7 +23,7 @@ requirement of being single-threaded. Orchestrators can be defined with `task` c
 expression, as shown in the standard
 [samples](https://github.com/Azure/azure-functions-durable-extension/blob/master/samples/fsharp/HelloSequence.fs#L12-#L19).
 
-However, to enable more F#-idiomatic style of orchestrator definitions, this library
+However, to enable a more F#-idiomatic style of orchestrator definitions, this library
 defines a new computation expression called `orchestrator`.
 
 Given a simple activity function:
@@ -34,7 +34,7 @@ let SayHello([<ActivityTrigger>] name) =
     sprintf "Hello %s!" name
 ```
 
-An orchestrator can be defined as following:
+An orchestrator can be defined as follows:
 
 ``` fsharp
 let workflow = orchestrator {
@@ -94,8 +94,8 @@ let workflow = orchestrator {
 
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Typed.fs).
 
-`Async` in activity
--------------------
+`Async` in activities
+---------------------
 
 While `Async<'a>` return type is not supported out of the box by Azure Functions, it can
 be used internally. There is a helper `defineAsync` function to make such definition easier:
