@@ -4,23 +4,23 @@ DurableFunctions.FSharp Library
 F#-friendly API layer around 
 [Azure Functions Durable Extensions](https://github.com/Azure/azure-functions-durable-extension).
 
-** Note: this is an early draft with the main goal to gather feedback,
+*Note: this is an early draft with the main goal to gather feedback,
 opinions, real-world scenarios and refine the API. Breaking changes
-can be introduced at any time.**
+can be introduced at any time.*
 
 Usage
 -----
 
 No NuGet exists yet. It will be created as soon as we have the basic API
-version. To give it a try now, please clone/fork and start with Samples project.
+version. To give the library a try now, please clone/fork and start with 
+[samples](https://github.com/mikhailshilkov/DurableFunctions.FSharp/tree/master/samples).
 
 Basic Orchestrator
 ------------------
 
-Durable Orchestrators can not be created with `async` computation expression due to the
-requirement of being single-threaded.
-
-Orchestrators can be defined with `task` computation expression, as shown in the standard
+Durable Orchestrators are not allowed to use `async` computation expression due to the
+requirement of being single-threaded. Orchestrators can be defined with `task` computation 
+expression, as shown in the standard
 [samples](https://github.com/Azure/azure-functions-durable-extension/blob/master/samples/fsharp/HelloSequence.fs#L12-#L19).
 
 However, to enable more F#-idiomatic style of orchestrator definitions, this library
@@ -56,7 +56,7 @@ let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
     workflow context 
 ```
 
-See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharpblob/master/samples/Hello.fs).
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Hello.fs).
 
 Typed Activity
 --------------
@@ -64,7 +64,7 @@ Typed Activity
 In the example above, the orchestrator calls activities by name. It also specifies the
 return type explicitly.
 
-To gain more type safety, an explicit typed `Activity` may be defined:
+To gain more type safety, an explicit typed `Activity<'a, 'b>` may be defined:
 
 ``` fsharp
 let sayHello = 
@@ -92,7 +92,24 @@ let workflow = orchestrator {
 }
 ```
 
-See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharpblob/master/samples/Typed.fs).
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Typed.fs).
+
+`Async` in activity
+-------------------
+
+While `Async<'a>` return type is not supported out of the box by Azure Functions, it can
+be used internally. There is a helper `defineAsync` function to make such definition easier:
+
+``` fsharp
+let hardWork = 
+    fun item -> async {
+      do! Async.Sleep 1000
+      return sprintf "Worked hard on %s!" item
+    }
+    |> Activity.defineAsync "HardWork"
+```
+
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/FanOutFanIn.fs).
 
 Fan-out/fan-in
 --------------
@@ -111,4 +128,10 @@ let workflow = orchestrator {
 }
 ```
 
-See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharpblob/master/samples/FanOutFanIn.fs).
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/FanOutFanIn.fs).
+
+Contributions
+-------------
+
+Everybody is welcome to contribute! Please try the library and create an issue with
+your ideas, problems, suggestions and target scenarios.
