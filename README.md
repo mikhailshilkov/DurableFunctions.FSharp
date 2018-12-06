@@ -53,7 +53,7 @@ which can be invoked from the orchestrator Azure Function:
 ``` fsharp
 [<FunctionName("HelloSequence")>]
 let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
-    workflow context 
+    Orchestrator.run (workflow, context)
 ```
 
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Hello.fs).
@@ -110,6 +110,20 @@ let hardWork =
 ```
 
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/FanOutFanIn.fs).
+
+Orchestrator with an input parameter
+------------------------------------
+
+Orchestrators can accept an input parameter (1 at most). This can be defined as an argument of the workflow
+definition function:
+
+``` fsharp
+let workflow input = orchestrator {
+  // ...
+}
+```
+
+An overload of `Orchestrator.run` will get the input from the context and pass it to the workflow.
 
 Fan-out/fan-in
 --------------

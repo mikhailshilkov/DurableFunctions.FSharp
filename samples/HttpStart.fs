@@ -16,7 +16,8 @@ module HttpStart =
       functionName: string,
       log: ILogger) =
     task {
-      let! instanceId = starter.StartNewAsync (functionName, "")
+      let param = req.RequestUri.ParseQueryString().["input"]
+      let! instanceId = starter.StartNewAsync (functionName, param)
 
       log.LogInformation(sprintf "Started orchestration with ID = '{%s}'." instanceId)
 
@@ -30,7 +31,8 @@ module HttpStart =
       functionName: string,
       log: ILogger) =
     task {
-      let! instanceId = starter.StartNewAsync (functionName, "")
+      let param = req.RequestUri.ParseQueryString().["input"]
+      let! instanceId = starter.StartNewAsync (functionName, param)
 
       log.LogInformation(sprintf "Started orchestration with ID = '{%s}'." instanceId)
 

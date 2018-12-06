@@ -21,4 +21,5 @@ module TypedSequence =
   let SayHello([<ActivityTrigger>] name) = sayHello.run name
 
   [<FunctionName("TypedSequence")>]
-  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = workflow context
+  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+    Orchestrator.run (workflow, context)

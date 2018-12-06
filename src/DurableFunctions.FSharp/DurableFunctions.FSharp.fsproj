@@ -5,6 +5,7 @@
   <ItemGroup>
     <Compile Include="OrchestratorCE.fs" />
     <Compile Include="Activity.fs" />
+    <Compile Include="Orchestrator.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.0" />

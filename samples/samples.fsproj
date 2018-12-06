@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Hello.fs" />
     <Compile Include="Typed.fs" />
+    <Compile Include="Parameters.fs" />
     <Compile Include="FanOutFanIn.fs" />
     <Compile Include="HttpStart.fs" />
   </ItemGroup>

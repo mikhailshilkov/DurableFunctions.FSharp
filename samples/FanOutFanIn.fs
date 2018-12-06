@@ -26,4 +26,5 @@ module FanInFanOut =
   let HardWork([<ActivityTrigger>] name) = hardWork.run name
 
   [<FunctionName("FanInFanOut")>]
-  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = workflow context
+  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+    Orchestrator.run (workflow, context)
