@@ -24,6 +24,9 @@ module Activity =
         run = fun x -> f x |> Async.StartAsTask
     }
 
+    /// Runs the activity
+    let run activity = activity.run
+
     /// Call an activity by name, passing an object as its input argument
     /// and specifying the type to expect for the activity output.
     let callByName<'a> (name: string) arg (c: DurableOrchestrationContext) =

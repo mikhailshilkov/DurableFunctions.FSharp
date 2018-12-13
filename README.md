@@ -76,7 +76,7 @@ as the second parameter. Azure Function still has to be defined separately:
 
 ``` fsharp
 [<FunctionName("SayTyped")>]
-let SayHello([<ActivityTrigger>] name) = sayHello.run name
+let SayHello([<ActivityTrigger>] name) = Activity.run sayHello name
 ```
 
 The orchestrator can now infer types from the activity type:

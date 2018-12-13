@@ -10,4 +10,20 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.0" />
   </ItemGroup>
+
+  <!-- NuGet Publishing Metadata -->
+  <PropertyGroup>
+    <Title>Azure Functions F# API</Title>
+    <Authors>Mikhail Shilkov</Authors>
+    <Description>F#-friendly API layer for Azure Durable Functions</Description>
+    <PackageReleaseNotes>https://github.com/mikhailshilkov/DurableFunctions.FSharp/releases/</PackageReleaseNotes>
+    <PackageTags>Azure;Durable;Extension;Orchestration;Workflow;Functions;FSharp</PackageTags>
+    <PackageLicenseUrl>https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/mikhailshilkov/DurableFunctions.FSharp</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <RepositoryUrl>https://github.com/mikhailshilkov/DurableFunctions.FSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
 </Project>
