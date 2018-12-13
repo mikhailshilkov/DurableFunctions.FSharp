@@ -14,13 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.7.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
+    <PackageReference Include="DurableFunctions.FSharp" Version="0.1.0" />
     <PackageReference Include="TaskBuilder.fs" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\src\DurableFunctions.FSharp\DurableFunctions.FSharp.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
