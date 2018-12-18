@@ -13,7 +13,7 @@ Getting Started
 
 Here is how you get started :
 
-### Create a new .NET Core console application
+#### 1. Create a new .NET Core console application
 
 With .NET Core 2.1 installed, run the following command to create a new console application:
 
@@ -21,7 +21,7 @@ With .NET Core 2.1 installed, run the following command to create a new console 
 dotnet new console -lang F#
 ```
 
-### Modify `fsproj`
+#### 2. Modify `fsproj`
 
 Edit the top section in `fsproj` to be:
 
@@ -34,7 +34,7 @@ Edit the top section in `fsproj` to be:
 
 See [the example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/samples.fsproj#L3-L6).
 
-### Install NuGet package
+#### 3. Install NuGet package
 
 Install the `DurableFunctions.FSharp` NuGet package:
 
@@ -42,7 +42,7 @@ Install the `DurableFunctions.FSharp` NuGet package:
 dotnet add package DurableFunctions.FSharp
 ```
 
-### Define an activity and an orchestrator
+#### 4. Define an activity and an orchestrator
 
 The following Hello World application can be used as a starting point:
 
@@ -72,8 +72,10 @@ module TypedSequence =
     Orchestrator.run (workflow, context)
 ```
 
+#### 5. Run
+
 [Install Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
-to run the app locally and deploy to the cloud, or use the tooling in Visual Studio or Visual Studio Code
+to run the app locally and deploy to the cloud, or use the tooling in Visual Studio or Visual Studio Code.
 
 If you have any issue, you can also clone/fork
 [the samples](https://github.com/mikhailshilkov/DurableFunctions.FSharp/tree/master/samples).
