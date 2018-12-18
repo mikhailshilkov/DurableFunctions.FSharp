@@ -8,12 +8,75 @@ F#-friendly API layer around
 opinions, real-world scenarios and refine the API. Breaking changes
 may be introduced at any time.*
 
-Usage
------
+Getting Started
+---------------
 
-No NuGet exists yet. It will be created as soon as we have the basic API
-version. To give the library a try now, please clone/fork and start with 
-[samples](https://github.com/mikhailshilkov/DurableFunctions.FSharp/tree/master/samples).
+Here is how you get started :
+
+### Create a new .NET Core console application
+
+With .NET Core 2.1 installed, run the following command to create a new console application:
+
+```
+dotnet new console -lang F#
+```
+
+### Modify `fsproj`
+
+Edit the top section in `fsproj` to be:
+
+``` xml
+<PropertyGroup>
+  <TargetFramework>netcoreapp2.1</TargetFramework>
+  <AzureFunctionsVersion>v2</AzureFunctionsVersion>
+</PropertyGroup>
+```
+
+See [the example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/samples.fsproj#L3-L6).
+
+### Install NuGet package
+
+Install the `DurableFunctions.FSharp` NuGet package:
+
+```
+dotnet add package DurableFunctions.FSharp
+```
+
+### Define an activity and an orchestrator
+
+The following Hello World application can be used as a starting point:
+
+``` fsharp
+open Microsoft.Azure.WebJobs
+open DurableFunctions.FSharp
+
+module TypedSequence =
+
+  let sayHello = 
+    Activity.define "SayHello" (sprintf "Hello %s!")
+
+  let workflow = orchestrator {
+    let! hello1 = Activity.call sayHello "Tokyo"
+    let! hello2 = Activity.call sayHello "Seattle"
+    let! hello3 = Activity.call sayHello "London"
+
+    // returns ["Hello Tokyo!", "Hello Seattle!", "Hello London!"]
+    return [hello1; hello2; hello3]
+  }
+
+  [<FunctionName("SayHello")>]
+  let SayHello([<ActivityTrigger>] name) = Activity.run sayHello
+
+  [<FunctionName("TypedSequence")>]
+  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+    Orchestrator.run (workflow, context)
+```
+
+[Install Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
+to run the app locally and deploy to the cloud, or use the tooling in Visual Studio or Visual Studio Code
+
+If you have any issue, you can also clone/fork
+[the samples](https://github.com/mikhailshilkov/DurableFunctions.FSharp/tree/master/samples).
 
 Basic Orchestrator
 ------------------
