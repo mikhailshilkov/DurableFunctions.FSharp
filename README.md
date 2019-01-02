@@ -36,9 +36,10 @@ See [the example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob
 
 #### 3. Install NuGet package
 
-Install the `DurableFunctions.FSharp` NuGet package:
+Install the `Microsoft.NET.Sdk.Functions` and `DurableFunctions.FSharp` NuGet packages:
 
 ```
+dotnet add package Microsoft.NET.Sdk.Functions
 dotnet add package DurableFunctions.FSharp
 ```
 
@@ -47,6 +48,8 @@ dotnet add package DurableFunctions.FSharp
 The following Hello World application can be used as a starting point:
 
 ``` fsharp
+namespace MyDurableApp
+
 open Microsoft.Azure.WebJobs
 open DurableFunctions.FSharp
 
