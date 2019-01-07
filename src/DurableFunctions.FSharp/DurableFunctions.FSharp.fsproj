@@ -13,7 +13,7 @@
 
   <!-- NuGet Publishing Metadata -->
   <PropertyGroup>
-    <Title>Azure Functions F# API</Title>
+    <Title>Azure Durable Functions F# API</Title>
     <Authors>Mikhail Shilkov</Authors>
     <Description>F#-friendly API layer for Azure Durable Functions</Description>
     <PackageReleaseNotes>https://github.com/mikhailshilkov/DurableFunctions.FSharp/releases/</PackageReleaseNotes>
@@ -24,6 +24,6 @@
     <RepositoryUrl>https://github.com/mikhailshilkov/DurableFunctions.FSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 </Project>

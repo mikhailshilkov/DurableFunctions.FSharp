@@ -1,18 +1,16 @@
-namespace samples
+module samples.FanInFanOut
 
 open Microsoft.Azure.WebJobs
 open DurableFunctions.FSharp
 
-module FanInFanOut =
-
-  let hardWork = 
+let hardWork = 
     fun item -> async {
       do! Async.Sleep 1000
       return sprintf "Worked hard on %s!" item
     }
     |> Activity.defineAsync "HardWork"
 
-  let workflow = orchestrator {
+let workflow = orchestrator {
     let! items =
       ["Tokyo"; "Seattle"; "London"]
       |> List.map (Activity.call hardWork)
@@ -22,9 +20,9 @@ module FanInFanOut =
     return String.concat ", " items
   }
 
-  [<FunctionName("HardWork")>]
-  let HardWork([<ActivityTrigger>] name) = hardWork.run name
+[<FunctionName("HardWork")>]
+let HardWork([<ActivityTrigger>] name) = hardWork.run name
 
-  [<FunctionName("FanInFanOut")>]
-  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+[<FunctionName("FanInFanOut")>]
+let FanInFanOut ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
     Orchestrator.run (workflow, context)

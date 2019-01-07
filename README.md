@@ -212,6 +212,21 @@ let workflow = orchestrator {
 
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/FanOutFanIn.fs).
 
+Delays
+------
+
+You can pause the orchestrator by calling `Orchestrator.delay` function:
+
+``` fsharp
+let sendAndPause email = orchestrator {
+    do! Activity.call sendNewsletter email
+    do! Orchestrator.delay (TimeSpan.FromHours 1.0)
+}
+```
+
+Note that the durable timer is used to implement this delay, so the orchestrator function will actually stop the current
+execution and will resume after the delay expires. See [Timers in Durable Functions](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-timers).
+
 Contributions
 -------------
 

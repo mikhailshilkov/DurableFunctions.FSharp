@@ -6,6 +6,8 @@ open System.Runtime.CompilerServices
 open Microsoft.Azure.WebJobs
 
 module OrchestratorBuilder =
+
+    type ContextTask = DurableOrchestrationContext -> Task
     type ContextTask<'a> = DurableOrchestrationContext -> Task<'a>
   
     /// Represents the state of a computation:
@@ -100,6 +102,13 @@ module OrchestratorBuilder =
         else // Await and continue later when a result is available.
             Await (awt, (fun () -> continuation(awt.GetResult())))
 
+    let inline bindTaskUnit (task : Task) (continuation : unit -> Step<'b>) =
+        let awt = task.GetAwaiter()
+        if awt.IsCompleted then // Proceed to the next step based on the result we already have.
+            continuation(awt.GetResult())
+        else // Await and continue later when a result is available.
+            Await (awt, (fun () -> continuation(awt.GetResult())))
+
     /// Chains together a step with its following step.
     /// Note that this requires that the first step has no result.
     /// This prevents constructs like `task { return 1; return 2; }`.
@@ -133,6 +142,12 @@ module OrchestratorBuilder =
                 let a = bindTask (task c) continuation
                 run (fun () -> a) c)
 
+    let inline bindContextTaskUnit (task : ContextTask) (continuation : unit -> Step<'b>) =
+        ReturnFrom(
+            fun c -> 
+                let a = bindTaskUnit (task c) continuation
+                run (fun () -> a) c)
+
     /// Builds a `System.Threading.Tasks.Task<'a>` similarly to a C# async/await method, but with
     /// all awaited tasks automatically configured *not* to resume on the captured context.
     /// This is often preferable when writing library code that is not context-aware, but undesirable when writing
@@ -152,6 +167,8 @@ module OrchestratorBuilder =
         // Everything else can use bindGenericAwaitable via an extension member (defined later).
         member inline __.Bind(task : ContextTask<'a>, continuation : 'a -> 'b Step) : 'b Step =
             bindContextTask task continuation
+        member inline __.Bind(task : ContextTask, continuation : unit -> 'b Step) : 'b Step =
+            bindContextTaskUnit task continuation
 
 [<AutoOpen>]
 module Builders =

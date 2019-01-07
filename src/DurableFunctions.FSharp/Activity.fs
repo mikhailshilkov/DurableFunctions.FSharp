@@ -42,3 +42,16 @@ module Activity =
         let bla = tasks |> Seq.map (fun x -> x c)
         let whenAll = Task.WhenAll bla
         whenAll.ContinueWith(fun (xs: Task<'a []>) -> xs.Result |> List.ofArray)
+    
+    /// Call all specified tasks sequentially one after the other and combine the results together.
+    let seq (tasks: OrchestratorBuilder.ContextTask<'a> list) = 
+        let rec work acc (rem : OrchestratorBuilder.ContextTask<'a> list) =
+            match rem with
+            | [] -> fun _ -> Task.FromResult acc
+            | d :: rest -> orchestrator {
+                let! t = d
+                return! work (acc @ [t]) rest
+            }
+        work [] tasks
+        
+    

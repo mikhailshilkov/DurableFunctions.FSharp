@@ -1,16 +1,14 @@
-namespace samples
+module samples.HelloSequence
 
 open Microsoft.Azure.WebJobs
 open DurableFunctions.FSharp
 
-module HelloSequence =
-
-  [<FunctionName("SayHello")>]
-  let SayHello([<ActivityTrigger>] name) = 
+[<FunctionName("SayHello")>]
+let SayHello([<ActivityTrigger>] name) = 
     sprintf "Hello %s!" name
 
-  [<FunctionName("HelloSequence")>]
-  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
+[<FunctionName("HelloSequence")>]
+let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
     context |>    
     orchestrator {
       let! hello1 = Activity.callByName<string> "SayHello" "Tokyo"
