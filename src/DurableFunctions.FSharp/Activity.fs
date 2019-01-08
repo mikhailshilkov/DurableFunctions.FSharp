@@ -24,6 +24,12 @@ module Activity =
         run = fun x -> f x |> Async.StartAsTask
     }
 
+    /// Constructor of activity given its name and a function returning Task<'a>.
+    let defineTask (name: string) run = {
+        name = name
+        run = run
+    }    
+
     /// Runs the activity
     let run activity = activity.run
 
