@@ -28,4 +28,15 @@ type Orchestrator = class
         let deadline = context.CurrentUtcDateTime.Add timespan
         context.CreateTimer(deadline, CancellationToken.None)
     
+    /// Wait for an external event. maxTimeToWait specifies the longest period to wait:
+    /// the call will return an Error if timeout is reached.
+    static member waitForEvent<'a> (maxTimeToWait: TimeSpan) (eventName: string) (context: DurableOrchestrationContext) =
+        let deadline = context.CurrentUtcDateTime.Add maxTimeToWait
+        let timer = context.CreateTimer(deadline, CancellationToken.None)
+        let event = context.WaitForExternalEvent<'a> eventName
+        Task.WhenAny(event, timer)
+            .ContinueWith(
+                fun (winner: Task) -> 
+                    if winner = timer then Result.Error ""
+                    else Result.Ok event.Result)
 end

@@ -1,6 +1,7 @@
 namespace DurableFunctions.FSharp
 
 open Microsoft.Azure.WebJobs
+open System
 open System.Threading.Tasks
 
 /// Strongly-typed activity representation to enable type-checked orchestrator definitions.
@@ -10,6 +11,17 @@ type Activity<'a, 'b> = {
     /// Run the activity (should only be called from the orchestrator body).
     run: 'a -> Task<'b>
 }
+
+/// Properties of exponential retry.
+type ExponentialRetryPolicy = {
+    FirstRetryInterval: TimeSpan
+    BackoffCoefficient: float
+    MaxNumberOfAttempts: int
+}
+
+/// Retry policy for calling activities.
+type RetryPolicy =
+    | ExponentialBackOff of ExponentialRetryPolicy
 
 module Activity =
     /// Constructor of activity given its name and a synchronous function.
@@ -41,6 +53,18 @@ module Activity =
     /// Call the activity with given input parameter and return its result.
     let call (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
         c.CallActivityAsync<'b> (activity.name, arg)
+
+    /// Call the activity with given input parameter and return its result. Apply retry
+    /// policy in case of call failure(s).
+    let callWithRetries (policy: RetryPolicy) (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
+        let options = 
+            match policy with
+            | ExponentialBackOff e -> 
+                let r = RetryOptions(firstRetryInterval = e.FirstRetryInterval,
+                                     maxNumberOfAttempts = e.MaxNumberOfAttempts)
+                r.BackoffCoefficient <- e.BackoffCoefficient
+                r
+        c.CallActivityWithRetryAsync<'b> (activity.name, options, arg)
 
     /// Call all specified tasks in parallel and combine the results together. To be used
     /// for fan-out / fan-in pattern of parallel execution.

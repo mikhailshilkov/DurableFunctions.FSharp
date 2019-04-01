@@ -227,6 +227,42 @@ let sendAndPause email = orchestrator {
 Note that the durable timer is used to implement this delay, so the orchestrator function will actually stop the current
 execution and will resume after the delay expires. See [Timers in Durable Functions](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-timers).
 
+Retry
+-----
+
+There is a built-in mechanism to retry failed activity calls. Invoke `Activity.callWithRetries` function with retry parameters:
+
+``` fsharp
+let workflow = orchestrator {
+    let policy = ExponentialBackOff { MaxNumberOfAttempts = 5
+                                      FirstRetryInterval = TimeSpan.FromSeconds 1.
+                                      BackoffCoefficient = 2. }
+    return! Activity.callWithRetries policy failUntil3 "Jam"
+}
+```
+
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Retry.fs).
+
+Waiting For External Events
+---------------------------
+
+Orchestrator functions have the ability to wait and listen for external events. This feature of Durable Functions is often useful for handling human interaction or other external triggers.
+
+`Orchestrator.waitForEvent` accepts the time-out duration and returns a `Result<'a, string>`: an `Ok` result if an external event occured, and `Error` otherwise:
+
+``` fsharp
+let workflow = orchestrator {
+    let maxWaitDuration = TimeSpan.FromHours 1.
+    let! result = Orchestrator.waitForEvent maxWaitDuration "Ack"
+    return 
+        match result with
+        | Ok Ack -> true
+        | _ -> false
+}
+```
+
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/WaitForEvent.fs).
+
 Contributions
 -------------
 
