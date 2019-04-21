@@ -241,6 +241,20 @@ let workflow = orchestrator {
 }
 ```
 
+This will result in a maximum of 6 attempts, the initial attempt and up to 5 retries attempts. For the purpose of selecting appropriate parameters list of delays as well as the maximum delay can be calculated with ([implementation](https://github.com/Azure/durabletask/blob/61a2dc2f94cfa0aa2aae6ceb080717bad8a616b8/src/DurableTask.Core/RetryInterceptor.cs#L81)):
+
+``` 
+open System
+
+let MaxNumberOfAttempts = 5
+let FirstRetryInterval = TimeSpan.FromSeconds 1.
+let BackoffCoefficient = 2.
+
+let nthDelay n = FirstRetryInterval.TotalMilliseconds * (Math.Pow(BackoffCoefficient, float n))
+let allDelays = seq { for n in 0 .. (MaxNumberOfAttempts - 1) do yield nthDelay n } |> Seq.toList
+let totalDelay = allDelays |> List.sum
+``` 
+
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Retry.fs).
 
 Waiting For External Events
