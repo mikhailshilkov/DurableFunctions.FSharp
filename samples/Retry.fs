@@ -1,3 +1,22 @@
+(*  
+Example demonstrating automated retry with exponential backoff. For the purpose of selecting appropriate 
+parameters the list of delays as well as the maximum delay can be calculated with: 
+
+open System
+
+let MaxNumberOfAttempts = 5
+let FirstRetryInterval = TimeSpan.FromSeconds 1.
+let BackoffCoefficient = 2.
+
+let nthDelay n = FirstRetryInterval.TotalMilliseconds * (Math.Pow(BackoffCoefficient, float n))
+let allDelays = seq { for n in 0 .. (MaxNumberOfAttempts - 1) do yield nthDelay n } |> Seq.toList
+let totalDelay = allDelays |> List.sum
+
+
+See: 
+https://github.com/Azure/durabletask/blob/61a2dc2f94cfa0aa2aae6ceb080717bad8a616b8/src/DurableTask.Core/RetryInterceptor.cs#L81
+*)
+
 module samples.Retry
 
 open Microsoft.Azure.WebJobs
