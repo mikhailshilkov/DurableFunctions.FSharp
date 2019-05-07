@@ -5,7 +5,7 @@ a string parsed from the query string by HttpStart.
 NOTE: Because durable functions maintain their state in Azure Storage the parameters must be 
 serializable by vanilla Json.Net serialization. Basic types classses and F# records are supported.
 Some types such as F# tuples are not. If you use an unsuppored type your code may compile but at 
-runtime the DurableFunctions library will indicate the given actiivyt function can't be found.
+runtime the DurableFunctions library will indicate the given activity function can't be found.
 *)
 
 module samples.InputParameter
