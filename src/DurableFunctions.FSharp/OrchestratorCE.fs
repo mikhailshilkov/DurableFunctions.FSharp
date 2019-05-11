@@ -148,15 +148,26 @@ module OrchestratorBuilder =
                 let a = bindTaskUnit (task c) continuation
                 run (fun () -> a) c)
 
-    let rec tryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = 
-        try 
-            match task() with
+    /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
+    /// to retrieve the step, and in the continuation of the step (if any).
+    let rec tryWith (step : unit -> Step<'a>) (catch : exn -> Step<'a>) =
+        try
+            match step() with
             | Return _ as i -> i
-            | ReturnFrom t -> ReturnFrom t
-            | Await(awaitable, next) -> Await (awaitable, fun () ->  tryWith (task, handler))
-        with e -> 
-            handler e
-
+            | ReturnFrom task ->
+                let wrapper ctx =
+                    let awaitable = (task ctx).GetAwaiter()
+                    let step = 
+                        Await(awaitable, fun () ->
+                            try
+                                awaitable.GetResult() |> Return
+                            with
+                            | exn -> catch exn)
+                    StepStateMachine<'a>(step, ctx).Run().Unwrap()
+                ReturnFrom wrapper
+            | Await (awaitable, next) -> Await (awaitable, fun () -> tryWith next catch)
+        with
+        | exn -> catch exn
 
     /// Builds a `System.Threading.Tasks.Task<'a>` similarly to a C# async/await method, but with
     /// all awaited tasks automatically configured *not* to resume on the captured context.
@@ -171,7 +182,7 @@ module OrchestratorBuilder =
         member inline __.Return(x) = ret x
         member inline __.ReturnFrom(task : ContextTask<'a>) = ReturnFrom task
         member inline __.Combine(step : unit Step, continuation) = combine step continuation
-        member inline __.TryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = tryWith (task, handler)
+        member inline __.TryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = tryWith task handler
         member inline __.Using(disp : #IDisposable, body : #IDisposable -> _ Step) = using disp body
 
         // We have to have a dedicated overload for Task<'a> so the compiler doesn't get confused.
