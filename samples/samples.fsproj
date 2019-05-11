@@ -12,6 +12,7 @@
     <Compile Include="FanOutFanIn.fs" />
     <Compile Include="Delay.fs" />
     <Compile Include="HttpStart.fs" />
+    <Compile Include="Retry.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +28,10 @@
     <Content Include="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\DurableFunctions.FSharp\DurableFunctions.FSharp.fsproj" />
   </ItemGroup>
 
 </Project>

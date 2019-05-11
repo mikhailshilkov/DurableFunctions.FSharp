@@ -148,6 +148,16 @@ module OrchestratorBuilder =
                 let a = bindTaskUnit (task c) continuation
                 run (fun () -> a) c)
 
+    let rec tryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = 
+        try 
+            match task() with
+            | Return _ as i -> i
+            | ReturnFrom t -> ReturnFrom t
+            | Await(awaitable, next) -> Await (awaitable, fun () ->  tryWith (task, handler))
+        with e -> 
+            handler e
+
+
     /// Builds a `System.Threading.Tasks.Task<'a>` similarly to a C# async/await method, but with
     /// all awaited tasks automatically configured *not* to resume on the captured context.
     /// This is often preferable when writing library code that is not context-aware, but undesirable when writing
@@ -161,6 +171,7 @@ module OrchestratorBuilder =
         member inline __.Return(x) = ret x
         member inline __.ReturnFrom(task : ContextTask<'a>) = ReturnFrom task
         member inline __.Combine(step : unit Step, continuation) = combine step continuation
+        member inline __.TryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = tryWith (task, handler)
         member inline __.Using(disp : #IDisposable, body : #IDisposable -> _ Step) = using disp body
 
         // We have to have a dedicated overload for Task<'a> so the compiler doesn't get confused.
