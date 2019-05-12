@@ -11,8 +11,10 @@
     <Compile Include="Parameters.fs" />
     <Compile Include="FanOutFanIn.fs" />
     <Compile Include="Delay.fs" />
-    <Compile Include="HttpStart.fs" />
+    <Compile Include="WaitForEvent.fs" />
     <Compile Include="Retry.fs" />
+    <Compile Include="ErrorHandling.fs" />
+    <Compile Include="HttpStart.fs" />
   </ItemGroup>
 
   <ItemGroup>

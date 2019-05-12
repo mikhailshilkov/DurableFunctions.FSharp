@@ -35,19 +35,8 @@ let workflow = orchestrator {
     let policy = ExponentialBackOff { MaxNumberOfAttempts = 5
                                       FirstRetryInterval = TimeSpan.FromSeconds 1.
                                       BackoffCoefficient = 2. }
-
-    // In this case the exeption will propogate out of the workflow causing the 
-    // orchestration to fail.
-    //let! msg = Activity.callWithRetries policy failUntil3 "Jam"
-    //return msg
-
-     //Catch any exceptions in the activity function. Without this the exception
-     //will propogate causing the orchestrator to fail.
-    try 
-        let! msg = Activity.callWithRetries policy failUntil3 "Jam"
-        return msg
-    with ex -> 
-        return "error"
+    let! msg = Activity.callWithRetries policy failUntil3 "Jam"
+    return msg
 }
 
 [<FunctionName("FailUntil3")>]
