@@ -68,10 +68,10 @@ module Activity =
 
     /// Call all specified tasks in parallel and combine the results together. To be used
     /// for fan-out / fan-in pattern of parallel execution.
-    let all (tasks: OrchestratorBuilder.ContextTask<'a> seq) (c: DurableOrchestrationContext) = 
-        let bla = tasks |> Seq.map (fun x -> x c)
-        let whenAll = Task.WhenAll bla
-        whenAll.ContinueWith(fun (xs: Task<'a []>) -> xs.Result |> List.ofArray)
+    let all (tasks: OrchestratorBuilder.ContextTask<'a> seq) = orchestrator {
+        let! result = fun c -> (tasks |> Seq.map (fun x -> x c) |> Task.WhenAll)
+        return List.ofArray result
+    }
     
     /// Call all specified tasks sequentially one after the other and combine the results together.
     let seq (tasks: OrchestratorBuilder.ContextTask<'a> list) = 
