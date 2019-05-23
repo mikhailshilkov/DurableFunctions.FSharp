@@ -11,13 +11,18 @@ let hardWork =
     |> Activity.defineAsync "HardWork"
 
 let workflow = orchestrator {
-    let! items =
+    let! batch1 =
       ["Tokyo"; "Seattle"; "London"]
       |> List.map (Activity.call hardWork)
       |> Activity.all
 
-    // returns "Worked hard on Tokyo!, Worked hard on Seattle!, Worked hard on London!"
-    return String.concat ", " items
+    let! batch2 =
+      ["Paris"; "New York"; "Boston"]
+      |> List.map (Activity.call hardWork)
+      |> Activity.all
+
+    // returns "Worked hard on Tokyo!, Worked hard on Seattle!, ...
+    return String.concat ", " (batch1 @ batch2)
   }
 
 [<FunctionName("HardWork")>]
