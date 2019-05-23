@@ -148,6 +148,64 @@ module OrchestratorBuilder =
                 let a = bindTaskUnit (task c) continuation
                 run (fun () -> a) c)
 
+    /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
+    /// to retrieve the step, and in the continuation of the step (if any).
+    let rec tryWith(step : unit -> Step<'a>) (catch : exn -> Step<'a>) =
+        try
+            match step() with
+            | Return _ as i -> i
+            | ReturnFrom task ->
+                let wrapper ctx =
+                    let awaitable = (task ctx).GetAwaiter()
+                    let step = 
+                        Await(awaitable, fun () ->
+                            try
+                                awaitable.GetResult() |> Return
+                            with
+                            | exn -> catch exn)
+                    StepStateMachine<'a>(step, ctx).Run().Unwrap()
+                ReturnFrom wrapper
+            | Await (awaitable, next) -> Await (awaitable, fun () -> tryWith next catch)
+        with
+        | exn -> catch exn
+
+    /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
+    /// to retrieve the step, and in the continuation of the step (if any).
+    let rec tryFinally (step : unit -> Step<'a>) fin =
+        let step =
+            try step()
+            // Important point: we use a try/with, not a try/finally, to implement tryFinally.
+            // The reason for this is that if we're just building a continuation, we definitely *shouldn't*
+            // execute the `fin()` part yet -- the actual execution of the asynchronous code hasn't completed!
+            with
+            | _ ->
+                fin()
+                reraise()
+        match step with
+        | Return _ as i ->
+            fin()
+            i
+        | ReturnFrom task ->
+            let wrapper ctx =
+                let awaitable = (task ctx).GetAwaiter()
+                let step = 
+                    Await(awaitable, fun () ->
+                        let result =
+                            try
+                                awaitable.GetResult() |> Return
+                            with
+                            | _ ->
+                                fin()
+                                reraise()
+                        fin() // if we got here we haven't run fin(), because we would've reraised after doing so
+                        result)
+                StepStateMachine<'a>(step, ctx).Run().Unwrap()
+            ReturnFrom wrapper
+
+        | Await (awaitable, next) ->
+            Await (awaitable, fun () -> tryFinally next fin)
+
+
     /// Builds a `System.Threading.Tasks.Task<'a>` similarly to a C# async/await method, but with
     /// all awaited tasks automatically configured *not* to resume on the captured context.
     /// This is often preferable when writing library code that is not context-aware, but undesirable when writing
@@ -160,7 +218,9 @@ module OrchestratorBuilder =
         member inline __.Zero() = zero
         member inline __.Return(x) = ret x
         member inline __.ReturnFrom(task : ContextTask<'a>) = ReturnFrom task
-        member inline __.Combine(step : unit Step, continuation) = combine step continuation
+        member inline __.Combine(step : Step<unit>, continuation) = combine step continuation
+        member inline __.TryWith(task : unit -> Step<'a>, handler : exn -> Step<'a>) = tryWith task handler
+        member inline __.TryFinally(task : unit -> Step<'a>, fin : unit -> unit) = tryFinally task fin
         member inline __.Using(disp : #IDisposable, body : #IDisposable -> _ Step) = using disp body
 
         // We have to have a dedicated overload for Task<'a> so the compiler doesn't get confused.
