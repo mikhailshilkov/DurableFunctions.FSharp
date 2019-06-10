@@ -18,6 +18,13 @@ type Orchestrator = class
     static member run (workflow : 'a -> ContextTask<'b>, context : DurableOrchestrationContext) : Task<'b> = 
         let input = context.GetInput<'a> ()
         workflow input context
+
+    static member runEternal (workflow : ContextTask<'b>, context : DurableOrchestrationContext) : Task<'b> = 
+        let task = workflow context
+        task.ContinueWith (
+            fun (t: Task<'b>) -> 
+                context.ContinueAsNew null
+                t.Result)
     
     /// Returns a fixed value as a orchestrator.
     static member ret value (_: DurableOrchestrationContext) =
