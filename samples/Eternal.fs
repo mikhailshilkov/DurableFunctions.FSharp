@@ -9,8 +9,9 @@ let printTime =
     |> Activity.define "PrintTime"
 
 let workflow = orchestrator {
-    let! _ = Activity.call printTime DateTime.Now
+    let! s = Activity.call printTime DateTime.Now
     do! Orchestrator.delay (TimeSpan.FromSeconds 5.0)
+    return if s.Contains "00" then Stop else ContinueAsNew ()
 }
 
 [<FunctionName("PrintTime")>]

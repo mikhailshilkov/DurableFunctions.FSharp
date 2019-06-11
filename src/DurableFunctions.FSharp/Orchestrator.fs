@@ -6,6 +6,8 @@ open System.Threading.Tasks
 open Microsoft.Azure.WebJobs
 open OrchestratorBuilder
 
+type EternalOrchestrationCommand<'a> = Stop | ContinueAsNew of 'a
+
 type Orchestrator = class
 
     /// Runs a workflow which expects an input parameter by reading this parameter from 
@@ -19,12 +21,24 @@ type Orchestrator = class
         let input = context.GetInput<'a> ()
         workflow input context
 
-    static member runEternal (workflow : ContextTask<'b>, context : DurableOrchestrationContext) : Task<'b> = 
+    static member runEternal (workflow : ContextTask<EternalOrchestrationCommand<unit>>, context : DurableOrchestrationContext) : Task = 
         let task = workflow context
         task.ContinueWith (
-            fun (t: Task<'b>) -> 
-                context.ContinueAsNew null
-                t.Result)
+            fun (t: Task<EternalOrchestrationCommand<unit>>) ->
+                match t.Result with
+                | ContinueAsNew () -> context.ContinueAsNew null
+                | Stop -> ()
+            )
+
+    static member runEternal (workflow : 'a -> ContextTask<EternalOrchestrationCommand<'a>>, context : DurableOrchestrationContext) : Task = 
+        let input = context.GetInput<'a> ()
+        let task = workflow input context
+        task.ContinueWith (
+            fun (t: Task<EternalOrchestrationCommand<'a>>) ->
+                match t.Result with
+                | ContinueAsNew r -> context.ContinueAsNew r
+                | Stop -> ()
+            )
     
     /// Returns a fixed value as a orchestrator.
     static member ret value (_: DurableOrchestrationContext) =
