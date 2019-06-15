@@ -6,6 +6,8 @@ open System.Threading.Tasks
 open Microsoft.Azure.WebJobs
 open OrchestratorBuilder
 
+/// Eternal orchestrators should return the value of this type signaling
+/// whether the orchestrator should continue ("as new") or quit (stop).
 type EternalOrchestrationCommand<'a> = Stop | ContinueAsNew of 'a
 
 type Orchestrator = class
@@ -21,6 +23,10 @@ type Orchestrator = class
         let input = context.GetInput<'a> ()
         workflow input context
 
+    /// Runs an "eternal" orchestrator: a series of workflow executions chained with
+    /// [ContinueAsNew] calls. The orchestrator will keep running until Stop command is
+    /// returned from one of the workflow iterations.
+    /// This overload always passes [null] to [ContinueAsNew] calls.
     static member runEternal (workflow : ContextTask<EternalOrchestrationCommand<unit>>, context : DurableOrchestrationContext) : Task = 
         let task = workflow context
         task.ContinueWith (
@@ -30,6 +36,10 @@ type Orchestrator = class
                 | Stop -> ()
             )
 
+    /// Runs an "eternal" orchestrator: a series of workflow executions chained with
+    /// [ContinueAsNew] calls. The orchestrator will keep running until Stop command is
+    /// returned from one of the workflow iterations.
+    /// This overload always passes the returned value to [ContinueAsNew] calls.
     static member runEternal (workflow : 'a -> ContextTask<EternalOrchestrationCommand<'a>>, context : DurableOrchestrationContext) : Task = 
         let input = context.GetInput<'a> ()
         let task = workflow input context
