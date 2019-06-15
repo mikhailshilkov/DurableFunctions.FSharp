@@ -263,6 +263,29 @@ let workflow = orchestrator {
 
 See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/WaitForEvent.fs).
 
+"Eternal" Orchestrators
+-----------------------
+
+Normal orchestrators persist full history of past events, which means there's a practical limit of how many event they can store without slowing down too much.
+
+[Eternal orchestrators](https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-eternal-orchestrations) solve this problem: the orchestrator can restart itself from a clean sheet. Each iteration will start the history from scratch. However, a piece of data can be forwarded from the previous iteration to the next one.
+
+`Orchestrator.runEternal` accepts a workflow which should return a value of a special type `EternalOrchestrationCommand`, which is a discriminated union. `ContinueAsNew of 'a` case can be used to restart the workflow and pass the value, while `Stop` case will end the orchestration (they don't have to be really eternal).
+
+``` fsharp
+let workflow = orchestrator {
+    let! s = Activity.call printTime DateTime.Now
+    do! Orchestrator.delay (TimeSpan.FromSeconds 5.0)
+    return ContinueAsNew ()
+}
+
+[<FunctionName("Eternal")>]
+let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+    Orchestrator.runEternal (workflow, context)
+```
+
+See [the full example](https://github.com/mikhailshilkov/DurableFunctions.FSharp/blob/master/samples/Eternal.fs).
+
 Contributions
 -------------
 
