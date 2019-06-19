@@ -66,6 +66,19 @@ module Activity =
                 r
         c.CallActivityWithRetryAsync<'b> (activity.name, options, arg)
 
+    /// Call the activity by name passing an object as its input argument
+    /// and specifying the type to expect for the activity output. Apply retry
+    /// policy in case of call failure(s).
+    let callByNameWithRetries<'a> (policy: RetryPolicy) (name:string) arg (c: DurableOrchestrationContext) =
+        let options = 
+            match policy with
+            | ExponentialBackOff e ->
+                        let r = RetryOptions(firstRetryInterval = e.FirstRetryInterval,
+                                                maxNumberOfAttempts = e.MaxNumberOfAttempts)
+                        r.BackoffCoefficient <- e.BackoffCoefficient
+                        r
+        c.CallActivityWithRetryAsync<'a> (name, options, arg)
+
     /// Call all specified tasks in parallel and combine the results together. To be used
     /// for fan-out / fan-in pattern of parallel execution.
     let all (tasks: OrchestratorBuilder.ContextTask<'a> seq) = orchestrator {
