@@ -54,30 +54,23 @@ module Activity =
     let call (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
         c.CallActivityAsync<'b> (activity.name, arg)
 
-    /// Call the activity with given input parameter and return its result. Apply retry
-    /// policy in case of call failure(s).
-    let callWithRetries (policy: RetryPolicy) (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
-        let options = 
-            match policy with
-            | ExponentialBackOff e -> 
+    let optionsBuilder = function
+    | ExponentialBackOff e -> 
                 let r = RetryOptions(firstRetryInterval = e.FirstRetryInterval,
                                      maxNumberOfAttempts = e.MaxNumberOfAttempts)
                 r.BackoffCoefficient <- e.BackoffCoefficient
                 r
-        c.CallActivityWithRetryAsync<'b> (activity.name, options, arg)
+
+    /// Call the activity with given input parameter and return its result. Apply retry
+    /// policy in case of call failure(s).
+    let callWithRetries (policy: RetryPolicy) (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
+        c.CallActivityWithRetryAsync<'b> (activity.name, (optionsBuilder policy), arg)
 
     /// Call the activity by name passing an object as its input argument
     /// and specifying the type to expect for the activity output. Apply retry
     /// policy in case of call failure(s).
     let callByNameWithRetries<'a> (policy: RetryPolicy) (name:string) arg (c: DurableOrchestrationContext) =
-        let options = 
-            match policy with
-            | ExponentialBackOff e ->
-                        let r = RetryOptions(firstRetryInterval = e.FirstRetryInterval,
-                                                maxNumberOfAttempts = e.MaxNumberOfAttempts)
-                        r.BackoffCoefficient <- e.BackoffCoefficient
-                        r
-        c.CallActivityWithRetryAsync<'a> (name, options, arg)
+        c.CallActivityWithRetryAsync<'a> (name, (optionsBuilder policy), arg)
 
     /// Call all specified tasks in parallel and combine the results together. To be used
     /// for fan-out / fan-in pattern of parallel execution.
