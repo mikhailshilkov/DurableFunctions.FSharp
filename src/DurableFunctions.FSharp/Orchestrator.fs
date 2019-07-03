@@ -14,12 +14,12 @@ type Orchestrator = class
 
     /// Runs a workflow which expects an input parameter by reading this parameter from 
     /// the orchestration context.
-    static member run (workflow : ContextTask<'b>, context : DurableOrchestrationContext) : Task<'b> = 
+    static member run (workflow : ContextTask<'b>, context : DurableOrchestrationContextBase) : Task<'b> = 
         workflow context
 
     /// Runs a workflow which expects an input parameter by reading this parameter from 
     /// the orchestration context.
-    static member run (workflow : 'a -> ContextTask<'b>, context : DurableOrchestrationContext) : Task<'b> = 
+    static member run (workflow : 'a -> ContextTask<'b>, context : DurableOrchestrationContextBase) : Task<'b> = 
         let input = context.GetInput<'a> ()
         workflow input context
 
@@ -27,7 +27,7 @@ type Orchestrator = class
     /// [ContinueAsNew] calls. The orchestrator will keep running until Stop command is
     /// returned from one of the workflow iterations.
     /// This overload always passes [null] to [ContinueAsNew] calls.
-    static member runEternal (workflow : ContextTask<EternalOrchestrationCommand<unit>>, context : DurableOrchestrationContext) : Task = 
+    static member runEternal (workflow : ContextTask<EternalOrchestrationCommand<unit>>, context : DurableOrchestrationContextBase) : Task = 
         let task = workflow context
         task.ContinueWith (
             fun (t: Task<EternalOrchestrationCommand<unit>>) ->
@@ -40,7 +40,7 @@ type Orchestrator = class
     /// [ContinueAsNew] calls. The orchestrator will keep running until Stop command is
     /// returned from one of the workflow iterations.
     /// This overload always passes the returned value to [ContinueAsNew] calls.
-    static member runEternal (workflow : 'a -> ContextTask<EternalOrchestrationCommand<'a>>, context : DurableOrchestrationContext) : Task = 
+    static member runEternal (workflow : 'a -> ContextTask<EternalOrchestrationCommand<'a>>, context : DurableOrchestrationContextBase) : Task = 
         let input = context.GetInput<'a> ()
         let task = workflow input context
         task.ContinueWith (
@@ -51,17 +51,17 @@ type Orchestrator = class
             )
     
     /// Returns a fixed value as a orchestrator.
-    static member ret value (_: DurableOrchestrationContext) =
+    static member ret value (_: DurableOrchestrationContextBase) =
         Task.FromResult value
 
     /// Delays orchestrator execution by the specified timespan.
-    static member delay (timespan: TimeSpan) (context: DurableOrchestrationContext) =
+    static member delay (timespan: TimeSpan) (context: DurableOrchestrationContextBase) =
         let deadline = context.CurrentUtcDateTime.Add timespan
         context.CreateTimer(deadline, CancellationToken.None)
     
     /// Wait for an external event. maxTimeToWait specifies the longest period to wait:
     /// the call will return an Error if timeout is reached.
-    static member waitForEvent<'a> (maxTimeToWait: TimeSpan) (eventName: string) (context: DurableOrchestrationContext) =
+    static member waitForEvent<'a> (maxTimeToWait: TimeSpan) (eventName: string) (context: DurableOrchestrationContextBase) =
         let deadline = context.CurrentUtcDateTime.Add maxTimeToWait
         let timer = context.CreateTimer(deadline, CancellationToken.None)
         let event = context.WaitForExternalEvent<'a> eventName
