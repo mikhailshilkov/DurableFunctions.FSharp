@@ -16,12 +16,15 @@
     <Compile Include="ErrorHandling.fs" />
     <Compile Include="Eternal.fs" />
     <Compile Include="HttpStart.fs" />
+    <Compile Include="testing.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.27" />
     <PackageReference Include="DurableFunctions.FSharp" Version="0.3.1" />
     <PackageReference Include="TaskBuilder.fs" Version="1.0.0" />
+    <PackageReference Include="Moq" Version="4.12.0" />
+    <PackageReference Include="Expecto" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>

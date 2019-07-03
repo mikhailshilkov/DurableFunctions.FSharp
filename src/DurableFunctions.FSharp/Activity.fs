@@ -47,11 +47,11 @@ module Activity =
 
     /// Call an activity by name, passing an object as its input argument
     /// and specifying the type to expect for the activity output.
-    let callByName<'a> (name: string) arg (c: DurableOrchestrationContext) =
+    let callByName<'a> (name: string) arg (c: DurableOrchestrationContextBase) =
         c.CallActivityAsync<'a> (name, arg)
 
     /// Call the activity with given input parameter and return its result.
-    let call (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
+    let call (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContextBase) =
         c.CallActivityAsync<'b> (activity.name, arg)
 
     let optionsBuilder = function
@@ -63,13 +63,13 @@ module Activity =
 
     /// Call the activity with given input parameter and return its result. Apply retry
     /// policy in case of call failure(s).
-    let callWithRetries (policy: RetryPolicy) (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContext) =
+    let callWithRetries (policy: RetryPolicy) (activity: Activity<'a, 'b>) (arg: 'a) (c: DurableOrchestrationContextBase) =
         c.CallActivityWithRetryAsync<'b> (activity.name, (optionsBuilder policy), arg)
 
     /// Call the activity by name passing an object as its input argument
     /// and specifying the type to expect for the activity output. Apply retry
     /// policy in case of call failure(s).
-    let callByNameWithRetries<'a> (policy: RetryPolicy) (name:string) arg (c: DurableOrchestrationContext) =
+    let callByNameWithRetries<'a> (policy: RetryPolicy) (name:string) arg (c: DurableOrchestrationContextBase) =
         c.CallActivityWithRetryAsync<'a> (name, (optionsBuilder policy), arg)
 
     /// Call all specified tasks in parallel and combine the results together. To be used
