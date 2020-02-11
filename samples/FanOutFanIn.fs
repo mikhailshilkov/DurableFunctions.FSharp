@@ -1,6 +1,7 @@
 module samples.FanInFanOut
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 let hardWork = 
@@ -29,5 +30,5 @@ let workflow = orchestrator {
 let HardWork([<ActivityTrigger>] name) = hardWork.run name
 
 [<FunctionName("FanInFanOut")>]
-let FanInFanOut ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let FanInFanOut ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (workflow, context)

@@ -2,7 +2,7 @@ module samples.ErrorHandling
 
 open Microsoft.Azure.WebJobs
 open DurableFunctions.FSharp
-open System
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 
 let failIfJam = 
     let work name =
@@ -31,9 +31,9 @@ let tryFinallyFlow name = orchestrator {
 let Fail([<ActivityTrigger>] name) = failIfJam.run name
 
 [<FunctionName("TryWithWorkflow")>]
-let RunWith ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let RunWith ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (tryWithFlow, context)
 
 [<FunctionName("TryFinallyWorkflow")>]
-let RunFinally ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let RunFinally ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (tryFinallyFlow, context)

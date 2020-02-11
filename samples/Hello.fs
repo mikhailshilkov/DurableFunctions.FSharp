@@ -1,6 +1,7 @@
 module samples.HelloSequence
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 [<FunctionName("SayHello")>]
@@ -8,7 +9,7 @@ let SayHello([<ActivityTrigger>] name) =
     sprintf "Hello %s!" name
 
 [<FunctionName("HelloSequence")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) = 
     context |>    
     orchestrator {
       let! hello1 = Activity.callByName<string> "SayHello" "Tokyo"

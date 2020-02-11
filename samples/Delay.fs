@@ -2,6 +2,7 @@
 
 open System
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 let sendNewsletter =     
@@ -32,5 +33,5 @@ let newsletter = orchestrator {
 let SendNewsletter([<ActivityTrigger>] url) = Activity.run sendNewsletter url
 
 [<FunctionName("NewsletterWorkflow")>]
-let NewsletterWorkflow ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let NewsletterWorkflow ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (newsletter, context)

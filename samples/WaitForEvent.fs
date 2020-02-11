@@ -1,6 +1,7 @@
 module samples.WaitForEvent
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 open System
 
@@ -16,5 +17,5 @@ let workflow = orchestrator {
 }
 
 [<FunctionName("WaitingWorkflow")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (workflow, context)
