@@ -20,6 +20,7 @@ https://github.com/Azure/durabletask/blob/61a2dc2f94cfa0aa2aae6ceb080717bad8a616
 module samples.Retry
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 open System
 
@@ -43,5 +44,5 @@ let workflow = orchestrator {
 let FailUntil3([<ActivityTrigger>] name) = failUntil3.run name
 
 [<FunctionName("RetryWorkflow")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (workflow, context)

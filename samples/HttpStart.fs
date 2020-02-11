@@ -3,7 +3,7 @@ namespace samples
 open System.Net.Http
 open Microsoft.Azure.WebJobs
 open Microsoft.Azure.WebJobs.Extensions.Http
-open Microsoft.Azure.WebJobs.Host
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open Microsoft.Extensions.Logging
 open FSharp.Control.Tasks
 
@@ -12,7 +12,7 @@ module HttpStart =
   [<FunctionName("HttpStart")>]
   let RunSync
      ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orchestrators/{functionName}")>] req: HttpRequestMessage,
-      [<OrchestrationClient>] starter: DurableOrchestrationClient,
+      [<DurableClient>] starter: IDurableOrchestrationClient,
       functionName: string,
       log: ILogger) =
     task {
@@ -27,7 +27,7 @@ module HttpStart =
   [<FunctionName("HttpSyncStart")>]
   let RunAsync
      ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orchestrators/{functionName}/wait")>] req: HttpRequestMessage,
-      [<OrchestrationClient>] starter: DurableOrchestrationClient,
+      [<DurableClient>] starter: IDurableOrchestrationClient,
       functionName: string,
       log: ILogger) =
     task {

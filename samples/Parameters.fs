@@ -11,6 +11,7 @@ runtime the DurableFunctions library will indicate the given activity function c
 module samples.InputParameter
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 open TypedSequence
@@ -25,5 +26,5 @@ let workflow input = orchestrator {
 }
 
 [<FunctionName("WorkflowWithInputParameter")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) = 
     Orchestrator.run (workflow, context)

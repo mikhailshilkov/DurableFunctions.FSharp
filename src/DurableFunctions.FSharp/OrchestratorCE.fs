@@ -3,12 +3,12 @@ namespace DurableFunctions.FSharp
 open System
 open System.Threading.Tasks
 open System.Runtime.CompilerServices
-open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 
 module OrchestratorBuilder =
 
-    type ContextTask = DurableOrchestrationContext -> Task
-    type ContextTask<'a> = DurableOrchestrationContext -> Task<'a>
+    type ContextTask = IDurableOrchestrationContext -> Task
+    type ContextTask<'a> = IDurableOrchestrationContext -> Task<'a>
   
     /// Represents the state of a computation:
     /// either awaiting something with a continuation,
@@ -19,7 +19,7 @@ module OrchestratorBuilder =
         /// We model tail calls explicitly, but still can't run them without O(n) memory usage.
         | ReturnFrom of ContextTask<'a>
     /// Implements the machinery of running a `Step<'m, 'm>` as a task returning a continuation task.
-    and StepStateMachine<'a>(firstStep, c: DurableOrchestrationContext) as this =
+    and StepStateMachine<'a>(firstStep, c: IDurableOrchestrationContext) as this =
         let methodBuilder = AsyncTaskMethodBuilder<'a Task>()
         /// The continuation we left off awaiting on our last MoveNext().
         let mutable continuation = fun () -> firstStep
@@ -112,7 +112,7 @@ module OrchestratorBuilder =
     /// Chains together a step with its following step.
     /// Note that this requires that the first step has no result.
     /// This prevents constructs like `task { return 1; return 2; }`.
-    let rec combine (step : Step<unit>) (continuation : unit -> Step<'b>) (c: DurableOrchestrationContext) =
+    let rec combine (step : Step<unit>) (continuation : unit -> Step<'b>) (c: IDurableOrchestrationContext) =
         match step with
         | Return _ -> continuation ()
         | ReturnFrom t ->
@@ -121,7 +121,7 @@ module OrchestratorBuilder =
             Await (awaitable, fun () -> combine (next()) continuation c)
 
     /// Runs a step as a task -- with a short-circuit for immediately completed steps.
-    let run (firstStep : unit -> Step<'a>) (c: DurableOrchestrationContext) =
+    let run (firstStep : unit -> Step<'a>) (c: IDurableOrchestrationContext) =
         try
             match firstStep() with
             | Return x -> Task.FromResult(x)

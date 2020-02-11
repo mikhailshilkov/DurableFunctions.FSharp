@@ -1,6 +1,7 @@
 module samples.TypedSequence
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 let sayHello = 
@@ -19,5 +20,5 @@ let workflow = orchestrator {
 let SayHello([<ActivityTrigger>] name) = sayHello.run name
 
 [<FunctionName("TypedSequence")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (workflow, context)
