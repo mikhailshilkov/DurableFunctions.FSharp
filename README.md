@@ -51,6 +51,7 @@ The following Hello World application can be used as a starting point:
 namespace MyDurableApp
 
 open Microsoft.Azure.WebJobs
+open Microsoft.Azure.WebJobs.Extensions.DurableTask
 open DurableFunctions.FSharp
 
 module TypedSequence =
@@ -71,7 +72,7 @@ module TypedSequence =
   let SayHello([<ActivityTrigger>] name) = Activity.run sayHello
 
   [<FunctionName("TypedSequence")>]
-  let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+  let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.run (workflow, context)
 ```
 
@@ -115,12 +116,12 @@ let workflow = orchestrator {
 }
 ```
 
-The result of the computation is a function of type `DurableOrchestrationContext -> Task<'a>`
+The result of the computation is a function of type `IDurableOrchestrationContext -> Task<'a>`
 which can be invoked from the orchestrator Azure Function:
 
 ``` fsharp
 [<FunctionName("HelloSequence")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) = 
     Orchestrator.run (workflow, context)
 ```
 
@@ -280,7 +281,7 @@ let workflow = orchestrator {
 }
 
 [<FunctionName("Eternal")>]
-let Run ([<OrchestrationTrigger>] context: DurableOrchestrationContext) =
+let Run ([<OrchestrationTrigger>] context: IDurableOrchestrationContext) =
     Orchestrator.runEternal (workflow, context)
 ```
 
